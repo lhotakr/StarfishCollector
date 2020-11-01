@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public abstract class BaseScreen implements Screen, InputProcessor {
 
-    protected Game game;
+    protected BaseGame game;
 
     protected Stage mainStage;
     protected Stage uiStage;
@@ -18,7 +18,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     private boolean paused;
 
 
-    public BaseScreen(Game g)
+    public BaseScreen(BaseGame g)
     {
 
         game = g;

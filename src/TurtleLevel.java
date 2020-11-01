@@ -1,6 +1,7 @@
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -8,10 +9,22 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.compression.lzma.Base;
+import java.util.ArrayList;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.audio.Music;
-import java.util.ArrayList;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 
 public class TurtleLevel extends BaseScreen {
 
@@ -27,11 +40,14 @@ public class TurtleLevel extends BaseScreen {
     private Music instrumental;
     private Music oceanSurf;
 
-    public TurtleLevel (Game g)
+    public TurtleLevel (BaseGame g)
     { super(g); }
+
+    private Label starfishLeftLabel;
 
     public void create()
     {
+
         ocean = new BaseActor();
         ocean.setTexture(new Texture(Gdx.files.internal("assets/water.jpg")));
         ocean.setPosition(0,0);
@@ -61,8 +77,8 @@ public class TurtleLevel extends BaseScreen {
         starfish.setEllipseBoundary();
 
         starfishList = new ArrayList<BaseActor>();
-        int[] starfishCoords = {400,100, 100,400, 650,400};
-        for (int i = 0; i < 3; i++)
+        int[] starfishCoords = {400,100, 100,400, 150,200, 100, 100};
+        for (int i = 0; i < 4; i++)
         {
             BaseActor s = starfish.clone();
             s.setPosition(starfishCoords[2*i], starfishCoords[2*i+1]);
@@ -99,6 +115,8 @@ public class TurtleLevel extends BaseScreen {
         instrumental = Gdx.audio.newMusic(Gdx.files.internal("assets/Master_of_the_Feast.ogg"));
         oceanSurf = Gdx.audio.newMusic(Gdx.files.internal("assets/Ocean_Waves.ogg"));
 
+        starfishLeftLabel = new Label("Starfish Left: 8",game.skin,"uiLabelStyle");
+
         audioVolume = 0.8f;
         instrumental.setLooping(true);
         instrumental.setVolume(audioVolume);
@@ -106,6 +124,34 @@ public class TurtleLevel extends BaseScreen {
         oceanSurf.setLooping(true);
         oceanSurf.setVolume(audioVolume);
         oceanSurf.play();
+
+        uiTable.add(starfishLeftLabel);
+
+        Texture pauseTexture = new Texture(Gdx.files.internal("assets/pause.png"));
+        game.skin.add("pauseImage", pauseTexture);
+        ButtonStyle pauseStyle = new ButtonStyle();
+        pauseStyle.up = game.skin.getDrawable("pauseImage");
+        Button pauseButton = new Button(pauseStyle);
+
+        pauseButton.addListener(
+                new InputListener()
+                {
+                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button)
+                    {
+                        togglePaused();
+                        return true;
+                    }
+                }
+        );
+
+        uiTable.pad(10);
+        uiTable.add(starfishLeftLabel);
+        uiTable.add().expandX();
+        uiTable.add(pauseButton);
+        uiTable.row();
+        uiTable.add().colspan(3).expandY();
+
+        overlay.toBack();
 
     }
 
@@ -149,6 +195,14 @@ public class TurtleLevel extends BaseScreen {
             waterDrop.play(audioVolume);
         }
 
+        starfishLeftLabel.setText( "Starfish Left: " + starfishList.size() );
+    }
+
+    public void dispose()
+    {
+        waterDrop.dispose();
+        instrumental.dispose();
+        oceanSurf.dispose();
     }
 
 }
