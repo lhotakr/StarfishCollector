@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
 
 public class TurtleGame extends BaseGame {
 
-
     public void create()
     {
 

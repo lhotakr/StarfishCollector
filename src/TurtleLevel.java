@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.MathUtils;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class TurtleLevel extends BaseScreen
     final int viewWidth = 640;
     final int viewHeight = 480;
 
+    private boolean win;
+    private BaseActor winText;
 
     private Label starfishLeftLabel;
     private Table pauseOverlay;
@@ -232,6 +235,13 @@ public class TurtleLevel extends BaseScreen
         pauseOverlay.row();
         pauseOverlay.add(audioSlider).width(400);
         pauseOverlay.setVisible(false);
+
+        // win
+        winText = new BaseActor();
+        winText.setTexture( new Texture(Gdx.files.internal("assets/you-win.png")) );
+        winText.setPosition( 170, 60 );
+        winText.setVisible( false );
+        mainStage.addActor(winText);
     }
 
     public void update(float dt)
@@ -291,10 +301,27 @@ public class TurtleLevel extends BaseScreen
         cam.update();
 
         // check win
-        if (starfishList.size() == 0) {
-            System.out.printf("Výhra!");
-            return;
+        if ( !win && starfishList.size() ==0 )
+        {
+            win = true;
+            winText.setVisible(true);
+            winText.addAction( Actions.sequence(
+                    Actions.alpha(0),
+                    Actions.show(),
+                    Actions.fadeIn(2),
+                    Actions.forever( Actions.sequence(
+                            Actions.color( new Color(1,0,0,1), 1 ),
+                            Actions.color( new Color(0,0,1,1), 1 )
+                    ))
+            ));
+            turtle.addAction( Actions.parallel(
+                    Actions.alpha(1),
+                    Actions.rotateBy(360f, 1),
+                    Actions.scaleTo(0,0, 2), // xAmt, yAmt, duration
+                    Actions.fadeOut(1)
+            ));
         }
+
         // update UI
         starfishLeftLabel.setText( "Starfish Left: " + starfishList.size() );
     }
